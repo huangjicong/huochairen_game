@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火柴人闯关游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+        }
+
+        canvas {
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+            border: 4px solid #333;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            z-index: 10;
+        }
+
+        .ui-overlay div {
+            margin-bottom: 5px;
+        }
+
+        .game-over, .game-win, .game-start {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 40px 60px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+
+        .game-start {
+            display: block;
+        }
+
+        .game-over h2, .game-win h2, .game-start h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .game-over p, .game-win p, .game-start p {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .controls span {
+            display: inline-block;
+            background: #555;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin: 2px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="ui-overlay">
+            <div id="score">分数: 0</div>
+            <div id="level">关卡: 1</div>
+            <div id="lives">生命: ❤️❤️❤️</div>
+            <div id="weapon">武器: 👊 拳脚</div>
+            <div id="arrows">箭矢: 🏹 10</div>
+        </div>
+        <canvas id="gameCanvas" width="1000" height="500"></canvas>
+
+        <div class="game-start" id="gameStart">
+            <h2>🏃 火柴人闯关 🏃</h2>
+            <p>到达绿色终点旗帜即可过关！</p>
+            <div class="controls">
+                <p><span>←</span> <span>→</span> 或 <span>A</span> <span>D</span> 移动</p>
+                <p><span>空格</span> 或 <span>W</span> 跳跃</p>
+                <p><span>J</span> 近战攻击 | <span>K</span> 射箭 | <span>Q</span> 切换武器</p>
+            </div>
+            <button onclick="startGame()">开始游戏</button>
+        </div>
+
+        <div class="game-over" id="gameOver">
+            <h2>游戏结束 💀</h2>
+            <p>最终分数: <span id="finalScore">0</span></p>
+            <button onclick="restartGame()">重新开始</button>
+        </div>
+
+        <div class="game-win" id="gameWin">
+            <h2>恭喜过关! 🎉</h2>
+            <p>你的分数: <span id="winScore">0</span></p>
+            <button onclick="nextLevel()">下一关</button>
+        </div>
+    </div>
+
+    <!-- 游戏模块 -->
+    <script src="js/audio.js"></script>
+    <script src="js/skeleton.js"></script>
+    <script src="js/weapon.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
