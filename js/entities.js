@@ -152,7 +152,8 @@ class StickMan {
     }
 
     attackHit(enemy) {
-        if (!this.isAttacking || this.hasHitEnemy) return false;
+        // 不能攻击已经死亡或正在死亡的敌人
+        if (!this.isAttacking || this.hasHitEnemy || enemy.dying || !enemy.alive) return false;
 
         const currentMelee = weaponSystem.getCurrentMelee();
         let range, damage;
