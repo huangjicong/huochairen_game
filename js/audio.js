@@ -166,25 +166,79 @@ class AudioManager {
         if (!this.audioContext) return;
         this.resume();
 
-        // 高频噪声 + 带通滤波 = 金属"刷"声
-        const noise = this.audioContext.createBufferSource();
-        noise.buffer = this.createNoise(0.25);
+        const now = this.audioContext.currentTime;
 
-        const filter = this.audioContext.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.value = 2000;
-        filter.Q.value = 2;
+        // ===== 第一层：空气切割"嗖"声 =====
+        // 使用带频率调制的噪声，模拟剑划过空气
+        const noise1 = this.audioContext.createBufferSource();
+        noise1.buffer = this.createNoise(0.35);
 
-        const gain = this.audioContext.createGain();
-        gain.gain.setValueAtTime(this.sfxVolume, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.25);
+        // 高通滤波器，频率随时间上升再下降（模拟挥剑轨迹）
+        const filter1 = this.audioContext.createBiquadFilter();
+        filter1.type = 'highpass';
+        filter1.frequency.setValueAtTime(800, now);
+        filter1.frequency.linearRampToValueAtTime(3000, now + 0.1);  // 上升
+        filter1.frequency.linearRampToValueAtTime(600, now + 0.35);   // 下降
 
-        noise.connect(filter);
-        filter.connect(gain);
-        gain.connect(this.sfxGain);
+        const gain1 = this.audioContext.createGain();
+        gain1.gain.setValueAtTime(0, now);
+        gain1.gain.linearRampToValueAtTime(this.sfxVolume * 0.7, now + 0.05);  // 起势
+        gain1.gain.setValueAtTime(this.sfxVolume * 0.8, now + 0.15);           // 最强
+        gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.35);             // 消散
 
-        noise.start();
-        noise.stop(this.audioContext.currentTime + 0.25);
+        noise1.connect(filter1);
+        filter1.connect(gain1);
+        gain1.connect(this.sfxGain);
+
+        noise1.start();
+        noise1.stop(now + 0.35);
+
+        // ===== 第二层：金属共鸣声 =====
+        // 高频金属质感的"铮"声
+        const osc1 = this.audioContext.createOscillator();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(1800, now);
+        osc1.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+
+        const osc2 = this.audioContext.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(2400, now);
+        osc2.frequency.exponentialRampToValueAtTime(1200, now + 0.12);
+
+        // 金属声的增益包络 - 快速衰减
+        const metalGain = this.audioContext.createGain();
+        metalGain.gain.setValueAtTime(this.sfxVolume * 0.4, now);
+        metalGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+        osc1.connect(metalGain);
+        osc2.connect(metalGain);
+        metalGain.connect(this.sfxGain);
+
+        osc1.start();
+        osc1.stop(now + 0.15);
+        osc2.start();
+        osc2.stop(now + 0.12);
+
+        // ===== 第三层：低频震动（剑身共鸣）=====
+        const osc3 = this.audioContext.createOscillator();
+        osc3.type = 'sawtooth';
+        osc3.frequency.setValueAtTime(150, now);
+        osc3.frequency.exponentialRampToValueAtTime(80, now + 0.2);
+
+        const lowpass = this.audioContext.createBiquadFilter();
+        lowpass.type = 'lowpass';
+        lowpass.frequency.value = 300;
+
+        const gain3 = this.audioContext.createGain();
+        gain3.gain.setValueAtTime(this.sfxVolume * 0.3, now);
+        gain3.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+        osc3.connect(lowpass);
+        lowpass.connect(gain3);
+        gain3.connect(this.sfxGain);
+
+        osc3.start();
+        osc3.stop(now + 0.2);
     }
 
     playBowSound() {
