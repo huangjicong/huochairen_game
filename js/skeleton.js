@@ -571,7 +571,7 @@ class SkeletonAnimator {
     }
 
     updateDie() {
-        // 写实死亡动画 - 向前倒地，三阶段
+        // 写实死亡动画 - 向前倒地，带身体下移效果
         const progress = this.getProgress();
 
         if (progress < 0.2) {
@@ -585,53 +585,54 @@ class SkeletonAnimator {
             this.targetJoints.shoulder.right = 0.8 * t;
             this.targetJoints.elbow.left = -0.3 * t;
             this.targetJoints.elbow.right = 0.3 * t;
-            this.targetBodyTilt = -0.2 * t;
+            this.targetBodyTilt = -0.3 * t;
             this.targetBodyOffsetY = 2 * t;
             this.targetHeadOffset = { x: 0, y: -2 * t };
         } else if (progress < 0.5) {
-            // 阶段2：失去平衡 - 膝盖发软，开始前倾
+            // 阶段2：失去平衡 - 膝盖发软，开始前倾，身体下蹲
             const t = (progress - 0.2) / 0.3;
-            this.targetJoints.hip.left = -0.3 + t * 0.6;
-            this.targetJoints.hip.right = -0.3 + t * 0.6;
-            this.targetJoints.knee.left = 0.4 + t * 1.0;
-            this.targetJoints.knee.right = 0.4 + t * 1.0;
-            this.targetJoints.shoulder.left = -0.8 - t * 0.5;
-            this.targetJoints.shoulder.right = 0.8 + t * 0.5;
-            this.targetJoints.elbow.left = -0.3 + t * 0.8;
-            this.targetJoints.elbow.right = 0.3 - t * 0.8;
-            // 从后仰转到前倾
-            this.targetBodyTilt = -0.2 + t * 0.4;
-            this.targetBodyOffsetY = 2 + t * 10;
-            this.targetHeadOffset = { x: 0, y: -2 + t * 5 };
+            this.targetJoints.hip.left = -0.3 + t * 0.8;
+            this.targetJoints.hip.right = -0.3 + t * 0.8;
+            this.targetJoints.knee.left = 0.4 + t * 1.2;
+            this.targetJoints.knee.right = 0.4 + t * 1.2;
+            this.targetJoints.shoulder.left = -0.8 - t * 0.6;
+            this.targetJoints.shoulder.right = 0.8 + t * 0.6;
+            this.targetJoints.elbow.left = -0.3 + t * 1.0;
+            this.targetJoints.elbow.right = 0.3 - t * 1.0;
+            // 从后仰转到前倾，身体下蹲
+            this.targetBodyTilt = -0.3 + t * 0.6;
+            this.targetBodyOffsetY = 2 + t * 20; // 蹲下
+            this.targetHeadOffset = { x: 0, y: -2 + t * 8 };
         } else if (progress < 0.85) {
-            // 阶段3：倒地 - 重重摔下
+            // 阶段3：倒地 - 身体旋转倒下，整体下移到地面
             const t = (progress - 0.5) / 0.35;
             const fall = t * t; // 加速效果
-            this.targetJoints.hip.left = 0.3 + t * 0.1;
-            this.targetJoints.hip.right = 0.3 + t * 0.1;
-            this.targetJoints.knee.left = 1.4 - t * 0.4;
-            this.targetJoints.knee.right = 1.4 - t * 0.4;
-            this.targetJoints.shoulder.left = -1.3 - t * 0.2;
-            this.targetJoints.shoulder.right = 1.3 + t * 0.2;
-            this.targetJoints.elbow.left = 0.5 + t * 0.5;
-            this.targetJoints.elbow.right = -0.5 - t * 0.5;
-            // 继续前倾直到趴下
-            this.targetBodyTilt = 0.2 + fall * 1.1;
-            this.targetBodyOffsetY = 12 + fall * 13;
-            this.targetHeadOffset = { x: 0, y: 3 + fall * 10 };
+            this.targetJoints.hip.left = 0.5 + t * 0.2;
+            this.targetJoints.hip.right = 0.5 + t * 0.2;
+            this.targetJoints.knee.left = 1.6 - t * 0.6;
+            this.targetJoints.knee.right = 1.6 - t * 0.6;
+            this.targetJoints.shoulder.left = -1.4 - t * 0.3;
+            this.targetJoints.shoulder.right = 1.4 + t * 0.3;
+            this.targetJoints.elbow.left = 0.7 + t * 0.8;
+            this.targetJoints.elbow.right = -0.7 - t * 0.8;
+            // 身体旋转倒下（大约90度）
+            this.targetBodyTilt = 0.3 + fall * 1.2;
+            // 身体下移到地面
+            this.targetBodyOffsetY = 22 + fall * 35;
+            this.targetHeadOffset = { x: 0, y: 6 + fall * 15 };
         } else {
             // 阶段4：静止趴在地上
-            this.targetJoints.hip.left = 0.4;
-            this.targetJoints.hip.right = 0.4;
+            this.targetJoints.hip.left = 0.7;
+            this.targetJoints.hip.right = 0.7;
             this.targetJoints.knee.left = 1.0;
             this.targetJoints.knee.right = 1.0;
-            this.targetJoints.shoulder.left = -1.5;
-            this.targetJoints.shoulder.right = 1.5;
-            this.targetJoints.elbow.left = 1.0;
-            this.targetJoints.elbow.right = -1.0;
-            this.targetBodyTilt = 1.3;
-            this.targetBodyOffsetY = 25;
-            this.targetHeadOffset = { x: 0, y: 13 };
+            this.targetJoints.shoulder.left = -1.7;
+            this.targetJoints.shoulder.right = 1.7;
+            this.targetJoints.elbow.left = 1.5;
+            this.targetJoints.elbow.right = -1.5;
+            this.targetBodyTilt = 1.5; // 约86度，接近水平
+            this.targetBodyOffsetY = 57; // 落到地面
+            this.targetHeadOffset = { x: 0, y: 21 };
         }
     }
 
@@ -775,6 +776,8 @@ class EnemySkeletonAnimator {
         // 身体动态
         this.bodyTilt = 0;
         this.targetBodyTilt = 0;
+        this.bodyOffsetY = 0;
+        this.targetBodyOffsetY = 0;
     }
 
     setState(newState) {
@@ -807,6 +810,7 @@ class EnemySkeletonAnimator {
             }
         }
         this.bodyTilt += (this.targetBodyTilt - this.bodyTilt) * 0.1;
+        this.bodyOffsetY += (this.targetBodyOffsetY - this.bodyOffsetY) * 0.12;
     }
 
     updateIdle() {
@@ -847,7 +851,7 @@ class EnemySkeletonAnimator {
     }
 
     updateDie() {
-        // 写实死亡动画 - 向前倒地
+        // 写实死亡动画 - 向前倒地，带身体下移效果
         const progress = Math.min(this.stateTimer / 80, 1); // 80帧完成
 
         if (progress < 0.2) {
@@ -861,45 +865,50 @@ class EnemySkeletonAnimator {
             this.targetJoints.shoulder.right = 0.6 * t;
             this.targetJoints.elbow.left = 0.2 * t;
             this.targetJoints.elbow.right = -0.2 * t;
-            this.targetBodyTilt = -0.15 * t;
+            this.targetBodyTilt = -0.2 * t;
+            this.targetBodyOffsetY = 2 * t;
         } else if (progress < 0.45) {
-            // 阶段2：失去平衡 - 膝盖发软，开始前倾
+            // 阶段2：失去平衡 - 膝盖发软，开始前倾，身体下蹲
             const t = (progress - 0.2) / 0.25;
-            this.targetJoints.hip.left = -0.3 + t * 0.5;
-            this.targetJoints.hip.right = -0.3 + t * 0.5;
-            this.targetJoints.knee.left = 0.3 + t * 1.0;
-            this.targetJoints.knee.right = 0.3 + t * 1.0;
-            this.targetJoints.shoulder.left = -0.6 - t * 0.6;
-            this.targetJoints.shoulder.right = 0.6 + t * 0.6;
-            this.targetJoints.elbow.left = 0.2 + t * 0.6;
-            this.targetJoints.elbow.right = -0.2 - t * 0.6;
-            // 从后仰转到前倾
-            this.targetBodyTilt = -0.15 + t * 0.5;
+            this.targetJoints.hip.left = -0.3 + t * 0.6;
+            this.targetJoints.hip.right = -0.3 + t * 0.6;
+            this.targetJoints.knee.left = 0.3 + t * 1.2;
+            this.targetJoints.knee.right = 0.3 + t * 1.2;
+            this.targetJoints.shoulder.left = -0.6 - t * 0.7;
+            this.targetJoints.shoulder.right = 0.6 + t * 0.7;
+            this.targetJoints.elbow.left = 0.2 + t * 0.8;
+            this.targetJoints.elbow.right = -0.2 - t * 0.8;
+            // 从后仰转到前倾，身体下蹲
+            this.targetBodyTilt = -0.2 + t * 0.6;
+            this.targetBodyOffsetY = 2 + t * 18;
         } else if (progress < 0.8) {
-            // 阶段3：倒地 - 重重摔下
+            // 阶段3：倒地 - 身体旋转倒下，整体下移到地面
             const t = (progress - 0.45) / 0.35;
             const fall = t * t; // 加速效果
-            this.targetJoints.hip.left = 0.2 + t * 0.1;
-            this.targetJoints.hip.right = 0.2 + t * 0.1;
-            this.targetJoints.knee.left = 1.3 - t * 0.3;
-            this.targetJoints.knee.right = 1.3 - t * 0.3;
-            this.targetJoints.shoulder.left = -1.2 - t * 0.3;
-            this.targetJoints.shoulder.right = 1.2 + t * 0.3;
-            this.targetJoints.elbow.left = 0.8 + t * 0.4;
-            this.targetJoints.elbow.right = -0.8 - t * 0.4;
-            // 继续前倾直到趴下
-            this.targetBodyTilt = 0.35 + fall * 0.95;
+            this.targetJoints.hip.left = 0.3 + t * 0.2;
+            this.targetJoints.hip.right = 0.3 + t * 0.2;
+            this.targetJoints.knee.left = 1.5 - t * 0.5;
+            this.targetJoints.knee.right = 1.5 - t * 0.5;
+            this.targetJoints.shoulder.left = -1.3 - t * 0.4;
+            this.targetJoints.shoulder.right = 1.3 + t * 0.4;
+            this.targetJoints.elbow.left = 1.0 + t * 0.5;
+            this.targetJoints.elbow.right = -1.0 - t * 0.5;
+            // 身体旋转倒下（大约90度）
+            this.targetBodyTilt = 0.4 + fall * 1.0;
+            // 身体下移到地面
+            this.targetBodyOffsetY = 20 + fall * 30;
         } else {
             // 阶段4：静止趴在地上
-            this.targetJoints.hip.left = 0.3;
-            this.targetJoints.hip.right = 0.3;
+            this.targetJoints.hip.left = 0.5;
+            this.targetJoints.hip.right = 0.5;
             this.targetJoints.knee.left = 1.0;
             this.targetJoints.knee.right = 1.0;
-            this.targetJoints.shoulder.left = -1.5;
-            this.targetJoints.shoulder.right = 1.5;
-            this.targetJoints.elbow.left = 1.2;
-            this.targetJoints.elbow.right = -1.2;
-            this.targetBodyTilt = 1.3;
+            this.targetJoints.shoulder.left = -1.7;
+            this.targetJoints.shoulder.right = 1.7;
+            this.targetJoints.elbow.left = 1.5;
+            this.targetJoints.elbow.right = -1.5;
+            this.targetBodyTilt = 1.4;
+            this.targetBodyOffsetY = 50;
         }
     }
 
@@ -911,14 +920,17 @@ class EnemySkeletonAnimator {
     draw(ctx, x, y, facing, scale = 1) {
         ctx.save();
 
-        // 绘制阴影
+        // 计算脚部位置用于阴影
+        const footBaseY = 52;
+
+        // 绘制阴影 (在地面上，不受bodyOffsetY影响)
         ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-        // 敌人脚部位置: hipY=32 + 腿长20 = 52
         ctx.beginPath();
-        ctx.ellipse(x, y + 52, 15, 5, 0, 0, Math.PI * 2);
+        ctx.ellipse(x, y + footBaseY, 15, 5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.translate(x, y);
+        // 应用身体垂直偏移
+        ctx.translate(x, y + this.bodyOffsetY);
         ctx.rotate(this.bodyTilt);
         ctx.scale(facing, 1);
 

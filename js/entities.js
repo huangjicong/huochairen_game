@@ -282,27 +282,122 @@ class StickMan {
     }
 
     drawSword(ctx, x, y) {
-        ctx.strokeStyle = '#888';
-        ctx.lineWidth = 4;
-        ctx.lineCap = 'round';
-
         const slashAngle = this.animator.getProgress() * Math.PI - Math.PI / 4;
+        const swordLength = 50;
+
+        // 计算剑尖位置
+        const tipX = x + this.facing * Math.cos(slashAngle) * swordLength;
+        const tipY = y + Math.sin(slashAngle) * swordLength;
+
+        // 计算剑的中点
+        const midX = x + this.facing * Math.cos(slashAngle) * (swordLength * 0.5);
+        const midY = y + Math.sin(slashAngle) * (swordLength * 0.5);
+
+        // 剑的方向向量（垂直于剑身）
+        const perpX = -Math.sin(slashAngle) * this.facing;
+        const perpY = Math.cos(slashAngle);
+
+        ctx.save();
+        ctx.translate(x, y);
+
+        // ===== 剑刃 (渐变效果) =====
+        // 剑刃主体 - 使用多边形绘制剑身
+        const bladeWidth = 6; // 剑刃根部宽度
+        const bladeTaper = 0.8; // 剑尖收窄系数
 
         ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(
-            x + this.facing * Math.cos(slashAngle) * 45,
-            y + Math.sin(slashAngle) * 45
-        );
+        // 剑刃根部左角
+        ctx.moveTo(-perpX * bladeWidth, -perpY * bladeWidth);
+        // 剑尖
+        ctx.lineTo(this.facing * Math.cos(slashAngle) * swordLength,
+                   Math.sin(slashAngle) * swordLength);
+        // 剑刃根部右角
+        ctx.lineTo(perpX * bladeWidth, perpY * bladeWidth);
+
+        // 剑刃渐变填充
+        const gradient = ctx.createLinearGradient(0, 0,
+            this.facing * Math.cos(slashAngle) * swordLength,
+            Math.sin(slashAngle) * swordLength);
+        gradient.addColorStop(0, '#a0a0a0');
+        gradient.addColorStop(0.3, '#e8e8e8');
+        gradient.addColorStop(0.5, '#ffffff');
+        gradient.addColorStop(0.7, '#e8e8e8');
+        gradient.addColorStop(1, '#c0c0c0');
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        // 剑刃边框
+        ctx.strokeStyle = '#606060';
+        ctx.lineWidth = 1;
         ctx.stroke();
 
-        // 剑柄
-        ctx.strokeStyle = '#654321';
+        // 剑脊线（中间的棱线）
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.facing * Math.cos(slashAngle) * (swordLength - 8),
+                   Math.sin(slashAngle) * (swordLength - 8));
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // ===== 护手 (十字形护手) =====
+        ctx.beginPath();
+        ctx.moveTo(-perpX * 12, -perpY * 12);
+        ctx.lineTo(perpX * 12, perpY * 12);
+        ctx.strokeStyle = '#8B4513';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // 护手装饰（金属包裹）
+        ctx.beginPath();
+        ctx.arc(0, 0, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#d4af37'; // 金色
+        ctx.fill();
+        ctx.strokeStyle = '#b8960c';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // ===== 剑柄 =====
+        const hiltLength = 14;
+        const hiltEndX = -this.facing * Math.cos(slashAngle) * hiltLength;
+        const hiltEndY = -Math.sin(slashAngle) * hiltLength;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(hiltEndX, hiltEndY);
+        ctx.strokeStyle = '#5D3A1A'; // 深棕色皮革
         ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.moveTo(x - this.facing * 5, y - 3);
-        ctx.lineTo(x + this.facing * 5, y + 3);
         ctx.stroke();
+
+        // 剑柄缠绕纹理
+        for (let i = 1; i <= 3; i++) {
+            const t = i / 4;
+            const wrapX = hiltEndX * t;
+            const wrapY = hiltEndY * t;
+            ctx.beginPath();
+            ctx.arc(wrapX, wrapY, 3.5, 0, Math.PI * 2);
+            ctx.strokeStyle = '#4A2E0F';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // ===== 剑首 (柄尾装饰) =====
+        ctx.beginPath();
+        ctx.arc(hiltEndX, hiltEndY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#d4af37'; // 金色
+        ctx.fill();
+        ctx.strokeStyle = '#b8960c';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // 剑首宝石
+        ctx.beginPath();
+        ctx.arc(hiltEndX, hiltEndY, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#e74c3c'; // 红宝石
+        ctx.fill();
+
+        ctx.restore();
     }
 
     drawSwordSlash(ctx, x, y) {
